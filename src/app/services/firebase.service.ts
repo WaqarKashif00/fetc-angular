@@ -20,7 +20,14 @@ import {
   orderBy,
   Timestamp 
 } from 'firebase/firestore';
-import { environment } from '../../enviroments/environment.prod';
+import { 
+  getStorage, 
+  ref, 
+  uploadBytes, 
+  getDownloadURL,
+  deleteObject 
+} from 'firebase/storage';
+import { environment } from '../../enviroments/enviroments';
 
 export interface Blog {
   id?: string;
@@ -44,6 +51,7 @@ export class FirebaseService {
   private app = initializeApp(environment.firebase);
   private auth = getAuth(this.app);
   private db = getFirestore(this.app);
+  private storage = getStorage(this.app);
   
   // Signals for reactive state
   private currentUserSignal = signal<User | null>(null);
@@ -124,21 +132,43 @@ export class FirebaseService {
   }
   
   // Blog management methods
-  async addBlog(blogData: Omit<Blog, 'id'>): Promise<void> {
+  async uploadBlogImage(file: File): Promise<string> {
+    const timestamp = Date.now();
+    const fileName = `blog-images/${timestamp}_${file.name}`;
+    const storageRef = ref(this.storage, fileName);
+    
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+  
+  async addBlog(blogData: Omit<Blog, 'id'>, imageFile?: File): Promise<void> {
     const blogsPath = `artifacts/${environment.appId}/public/data/blogs`;
     const blogsRef = collection(this.db, blogsPath);
     
+    let imageUrl = blogData.imageUrl;
+    if (imageFile) {
+      imageUrl = await this.uploadBlogImage(imageFile);
+    }
+    
     await addDoc(blogsRef, {
       ...blogData,
+      imageUrl,
       createdAt: Timestamp.now()
     });
   }
   
-  async updateBlog(id: string, data: Partial<Blog>): Promise<void> {
+  async updateBlog(id: string, data: Partial<Blog>, imageFile?: File): Promise<void> {
     const blogsPath = `artifacts/${environment.appId}/public/data/blogs`;
     const blogRef = doc(this.db, blogsPath, id);
     
-    await updateDoc(blogRef, data);
+    let updateData = { ...data };
+    if (imageFile) {
+      const imageUrl = await this.uploadBlogImage(imageFile);
+      updateData = { ...updateData, imageUrl };
+    }
+    
+    await updateDoc(blogRef, updateData);
   }
   
   async deleteBlog(id: string): Promise<void> {

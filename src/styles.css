@@ -41,22 +41,25 @@ html {
    ADVANCED ANIMATIONS
    ============================================ */
 
-/* Fade In Up Animation */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(60px);
+/* Smooth Reveal Animation */
+@keyframes smoothAppear {
+  0% {
+    opacity: 0.4;  /* not fully invisible → prevents white flash */
+    transform: translateY(10px);
+    filter: blur(2px);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
   }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  opacity: 0;
+.animate-soft-fade {
+  animation: smoothAppear 0.8s ease-out forwards;
 }
+
+
 
 /* Fade In Left */
 @keyframes fadeInLeft {

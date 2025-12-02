@@ -32,6 +32,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/faq/faq.component').then(m => m.FaqComponent)
   },
   {
+    path: 'testimonials',
+    loadComponent: () => import('./pages/testimonials/testimonials.component').then(m => m.TestimonialsComponent)
+  },
+  {
     path: 'contact',
     loadComponent: () => import('./pages/contact/contact.component').then(m => m.ContactComponent)
   },
@@ -49,5 +53,3 @@ export const routes: Routes = [
     redirectTo: ''
   }
 ];
-
-// src/app/app.config.ts
