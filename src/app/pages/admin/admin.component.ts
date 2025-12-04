@@ -29,15 +29,16 @@ export class AdminComponent {
   faqs = this.firebaseService.faqs;
   currentUser = this.firebaseService.currentUser;
   
+  // Image handling
+  blogImage = signal<File | null>(null);
+  blogImagePreview = signal<string>('');
+  
   // Forms
   blogForm = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(5)]],
     content: ['', [Validators.required, Validators.minLength(20)]],
     imageUrl: ['']
   });
-  
-  blogImage = signal<File | null>(null);
-  blogImagePreview = signal<string>('');
   
   faqForm = this.fb.group({
     question: ['', [Validators.required, Validators.minLength(5)]],
@@ -50,6 +51,27 @@ export class AdminComponent {
     this.cancelEdit();
   }
   
+  // Image handling
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.blogImage.set(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.blogImagePreview.set(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+  
+  removeImage(): void {
+    this.blogImage.set(null);
+    this.blogImagePreview.set('');
+  }
+  
   // Blog operations
   startEditBlog(blog: Blog): void {
     this.editingBlog.set(blog);
@@ -58,6 +80,9 @@ export class AdminComponent {
       content: blog.content,
       imageUrl: blog.imageUrl || ''
     });
+    if (blog.imageUrl) {
+      this.blogImagePreview.set(blog.imageUrl);
+    }
   }
   
   async submitBlog(): Promise<void> {
@@ -76,17 +101,21 @@ export class AdminComponent {
       };
       
       const editing = this.editingBlog();
+      const imageFile = this.blogImage();
+      
       if (editing && editing.id) {
-        await this.firebaseService.updateBlog(editing.id, blogData);
+        await this.firebaseService.updateBlog(editing.id, blogData, imageFile || undefined);
         this.successMessage.set('Blog post updated successfully!');
       } else {
-        await this.firebaseService.addBlog(blogData);
+        await this.firebaseService.addBlog(blogData, imageFile || undefined);
         this.successMessage.set('Blog post created successfully!');
       }
       
       this.blogForm.reset();
       this.editingBlog.set(null);
+      this.removeImage();
     } catch (error) {
+      console.error('Error saving blog:', error);
       this.errorMessage.set('Failed to save blog post. Please try again.');
     } finally {
       this.loading.set(false);
@@ -175,6 +204,7 @@ export class AdminComponent {
     this.editingFAQ.set(null);
     this.blogForm.reset();
     this.faqForm.reset();
+    this.removeImage();
     this.clearMessages();
   }
   

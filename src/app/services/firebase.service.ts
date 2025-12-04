@@ -6,6 +6,8 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
   User 
 } from 'firebase/auth';
 import { 
@@ -58,6 +60,7 @@ export class FirebaseService {
   private blogsSignal = signal<Blog[]>([]);
   private faqsSignal = signal<FAQ[]>([]);
   private loadingSignal = signal<boolean>(false);
+  private authInitializedSignal = signal<boolean>(false);
   
   // Public computed signals
   currentUser = this.currentUserSignal.asReadonly();
@@ -65,8 +68,16 @@ export class FirebaseService {
   blogs = this.blogsSignal.asReadonly();
   faqs = this.faqsSignal.asReadonly();
   loading = this.loadingSignal.asReadonly();
+  authInitialized = this.authInitializedSignal.asReadonly();
   
   constructor() {
+    // Set persistence to LOCAL (survives browser restarts)
+    setPersistence(this.auth, browserLocalPersistence).then(() => {
+      console.log('Firebase persistence set to LOCAL');
+    }).catch((error) => {
+      console.error('Error setting persistence:', error);
+    });
+    
     this.initAuthListener();
     this.initBlogsListener();
     this.initFAQsListener();
@@ -74,7 +85,9 @@ export class FirebaseService {
   
   private initAuthListener(): void {
     onAuthStateChanged(this.auth, (user) => {
+      console.log('Auth state changed:', user ? user.email : 'No user');
       this.currentUserSignal.set(user);
+      this.authInitializedSignal.set(true);
     });
   }
   
@@ -110,7 +123,9 @@ export class FirebaseService {
   async login(email: string, password: string): Promise<void> {
     this.loadingSignal.set(true);
     try {
-      await signInWithEmailAndPassword(this.auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
+      console.log('Login successful:', userCredential.user.email);
+      this.currentUserSignal.set(userCredential.user);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -123,6 +138,8 @@ export class FirebaseService {
     this.loadingSignal.set(true);
     try {
       await signOut(this.auth);
+      console.log('Logout successful');
+      this.currentUserSignal.set(null);
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

@@ -131,16 +131,19 @@
           </svg>
           <span class="hidden xl:block font-semibold">WhatsApp</span>
         </a>
-        
-        <a routerLink="/login" 
-           class="group relative px-5 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full font-semibold overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105">
-          <span class="relative z-10 flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-            </svg>
-            Admin
-          </span>
-        </a>
+<a 
+  [routerLink]="currentUser()?.email  ? '/admin' : '/login'"
+  class="group relative px-5 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full font-semibold overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105">
+
+  <span class="relative z-10 flex items-center gap-2">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+    </svg>
+    Admin
+  </span>
+</a>
+
         
         <a routerLink="/contact" 
            class="group relative px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-midnight-blue rounded-full font-bold overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105">
