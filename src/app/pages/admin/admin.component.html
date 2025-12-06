@@ -105,26 +105,33 @@
                 <div class="relative mb-4">
                   <img [src]="blogImagePreview()" 
                        alt="Blog preview" 
-                       class="w-full h-48 object-cover rounded-lg">
+                       class="w-full h-48 object-cover rounded-lg border-2 border-gray-300">
                   <button 
                     type="button"
                     (click)="removeImage()"
-                    class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                   </button>
+                  @if (blogImage()) {
+                    <div class="absolute bottom-2 left-2 px-3 py-1 bg-green-500 text-white text-xs rounded-full font-semibold">
+                      File Ready to Upload
+                    </div>
+                  }
                 </div>
               }
               
               <!-- File Input -->
-              <div class="flex items-center justify-center w-full">
+              <div class="mb-4">
                 <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                   <div class="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg class="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                     </svg>
-                    <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                    <p class="mb-2 text-sm text-gray-500">
+                      <span class="font-semibold">Click to upload image file</span> or drag and drop
+                    </p>
                     <p class="text-xs text-gray-500">PNG, JPG or GIF (MAX. 5MB)</p>
                   </div>
                   <input 
@@ -134,25 +141,47 @@
                     (change)="onImageSelected($event)" />
                 </label>
               </div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Image URL (optional - use this OR upload file)
-              </label>
+              
+              <!-- OR Divider -->
+              <div class="relative my-4">
+                <div class="absolute inset-0 flex items-center">
+                  <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                  <span class="px-2 bg-white text-gray-500 font-semibold">OR use image URL</span>
+                </div>
+              </div>
+              
+              <!-- URL Input -->
               <input 
                 type="url"
                 formControlName="imageUrl"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-midnight-blue focus:border-transparent"
+                [disabled]="!!blogImage()"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-midnight-blue focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 placeholder="https://example.com/image.jpg">
+              @if (blogImage()) {
+                <p class="text-sm text-gray-500 mt-2">
+                  <span class="font-semibold">Note:</span> Image file is selected. Remove the file to use URL instead.
+                </p>
+              }
             </div>
             
             <div class="flex space-x-3">
               <button 
                 type="submit"
                 [disabled]="loading() || blogForm.invalid"
-                class="flex-1 bg-midnight-blue text-white py-3 rounded-lg font-semibold hover:bg-blue-900 transition-all duration-300 disabled:bg-gray-400">
-                @if (loading()) {
+                class="flex-1 bg-midnight-blue text-white py-3 rounded-lg font-semibold hover:bg-blue-900 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                @if (uploadingImage()) {
+                  <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Uploading Image...</span>
+                } @else if (loading()) {
+                  <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   <span>Saving...</span>
                 } @else if (editingBlog()) {
                   <span>Update Blog</span>
@@ -165,7 +194,8 @@
                 <button 
                   type="button"
                   (click)="cancelEdit()"
-                  class="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-all duration-300">
+                  [disabled]="loading()"
+                  class="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-all duration-300 disabled:opacity-50">
                   Cancel
                 </button>
               }

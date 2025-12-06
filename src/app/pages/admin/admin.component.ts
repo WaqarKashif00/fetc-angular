@@ -21,6 +21,7 @@ export class AdminComponent {
   editingBlog = signal<Blog | null>(null);
   editingFAQ = signal<FAQ | null>(null);
   loading = signal(false);
+  uploadingImage = signal(false);
   successMessage = signal('');
   errorMessage = signal('');
   
@@ -56,6 +57,19 @@ export class AdminComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        this.errorMessage.set('Please select an image file (PNG, JPG, GIF)');
+        return;
+      }
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        this.errorMessage.set('Image size must be less than 5MB');
+        return;
+      }
+      
       this.blogImage.set(file);
       
       // Create preview
@@ -64,12 +78,20 @@ export class AdminComponent {
         this.blogImagePreview.set(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+      
+      // Clear the imageUrl field when file is selected
+      this.blogForm.patchValue({ imageUrl: '' });
     }
   }
   
   removeImage(): void {
     this.blogImage.set(null);
     this.blogImagePreview.set('');
+    // Reset file input
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   }
   
   // Blog operations
@@ -83,42 +105,75 @@ export class AdminComponent {
     if (blog.imageUrl) {
       this.blogImagePreview.set(blog.imageUrl);
     }
+    // Scroll to form
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   }
   
   async submitBlog(): Promise<void> {
-    if (this.blogForm.invalid) return;
+    if (this.blogForm.invalid) {
+      this.errorMessage.set('Please fill in all required fields');
+      return;
+    }
     
     this.loading.set(true);
     this.clearMessages();
     
     try {
       const formValue = this.blogForm.value;
+      const imageFile = this.blogImage();
+      const imageUrl = formValue.imageUrl;
+      
+      // Check if we have either a file or URL
+      if (!imageFile && !imageUrl) {
+        this.errorMessage.set('Please provide an image (upload file or enter URL)');
+        this.loading.set(false);
+        return;
+      }
+      
       const blogData = {
         title: formValue.title!,
         content: formValue.content!,
-        imageUrl: formValue.imageUrl || undefined,
+        imageUrl: imageUrl || '',
         createdAt: new Date()
       };
       
       const editing = this.editingBlog();
-      const imageFile = this.blogImage();
       
-      if (editing && editing.id) {
-        await this.firebaseService.updateBlog(editing.id, blogData, imageFile || undefined);
-        this.successMessage.set('Blog post updated successfully!');
+      if (imageFile) {
+        // Upload image file
+        this.uploadingImage.set(true);
+        
+        if (editing && editing.id) {
+          await this.firebaseService.updateBlog(editing.id, blogData, imageFile);
+          this.successMessage.set('Blog post updated successfully with new image!');
+        } else {
+          await this.firebaseService.addBlog(blogData, imageFile);
+          this.successMessage.set('Blog post created successfully with uploaded image!');
+        }
+        
+        this.uploadingImage.set(false);
       } else {
-        await this.firebaseService.addBlog(blogData, imageFile || undefined);
-        this.successMessage.set('Blog post created successfully!');
+        // Use URL
+        if (editing && editing.id) {
+          await this.firebaseService.updateBlog(editing.id, blogData);
+          this.successMessage.set('Blog post updated successfully!');
+        } else {
+          await this.firebaseService.addBlog(blogData);
+          this.successMessage.set('Blog post created successfully!');
+        }
       }
       
       this.blogForm.reset();
       this.editingBlog.set(null);
       this.removeImage();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving blog:', error);
-      this.errorMessage.set('Failed to save blog post. Please try again.');
+      this.errorMessage.set(`Failed to save blog post: ${error.message || 'Please try again'}`);
     } finally {
       this.loading.set(false);
+      this.uploadingImage.set(false);
       this.autoHideMessages();
     }
   }
@@ -147,6 +202,10 @@ export class AdminComponent {
       question: faq.question,
       answer: faq.answer
     });
+    // Scroll to form
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   }
   
   async submitFAQ(): Promise<void> {

@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-about',
@@ -71,7 +72,7 @@ import { RouterModule } from '@angular/router';
               <div class="grid grid-cols-3 gap-6 pt-6">
                 @for (milestone of milestones; track milestone.year) {
                   <div class="text-center p-6 bg-gradient-to-br from-midnight-blue/5 to-blue-900/5 rounded-xl hover:shadow-lg transition-shadow duration-300">
-                    <div class="text-3xl font-bold text-muted-gold mb-2">{{ milestone.year }}</div>
+                    <div class="text-3xl font-bold text-muted-gold mb-2 text-gold">{{ milestone.year }}</div>
                     <div class="text-sm text-gray-600 font-medium">{{ milestone.label }}</div>
                   </div>
                 }
@@ -172,10 +173,9 @@ import { RouterModule } from '@angular/router';
             @for (value of values; track value.title; let i = $index) {
               <div class="group text-center scroll-fade-in" [style.animation-delay]="i * 100 + 'ms'">
                 <div class="relative mb-6">
-                  <div class="w-32 h-32 mx-auto bg-gradient-to-br from-midnight-blue to-blue-900 rounded-3xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl">
-                    <span class="text-5xl">{{ value.icon }}</span>
-                  </div>
-                  <div class="absolute inset-0 mx-auto w-32 h-32 bg-muted-gold/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div class="w-32 h-32 mx-auto bg-gradient-to-br from-midnight-blue to-blue-900 rounded-3xl flex items-center justify-center p-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl text-white"
+                       [innerHTML]="getIconSvg(value.icon)"></div>
+                  <div class="absolute inset-0 mx-auto w-32 h-32 bg-yellow-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </div>
                 <h4 class="text-2xl font-bold text-midnight-blue mb-3">{{ value.title }}</h4>
                 <p class="text-gray-600 leading-relaxed">{{ value.description }}</p>
@@ -204,12 +204,11 @@ import { RouterModule } from '@angular/router';
             @for (leader of leadership; track leader.name; let i = $index) {
               <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 text-center scroll-fade-in"
                    [style.animation-delay]="i * 100 + 'ms'">
-                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-midnight-blue to-blue-900 rounded-2xl flex items-center justify-center text-4xl">
-                  {{ leader.icon }}
-                </div>
+                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-midnight-blue to-blue-900 rounded-2xl flex items-center justify-center p-4 text-white"
+                     [innerHTML]="getIconSvg(leader.icon)"></div>
                 <h3 class="text-xl font-bold text-midnight-blue mb-2">{{ leader.name }}</h3>
-                <p class="text-muted-gold font-semibold mb-3">{{ leader.title }}</p>
-                <p class="text-gray-600 text-sm">{{ leader.phone }}</p>
+                <p class="text-yellow-600 font-semibold mb-3 text-sm">{{ leader.title }}</p>
+                <p class="text-gray-700 text-sm font-medium">{{ leader.phone }}</p>
                 <p class="text-gray-600 text-sm">{{ leader.email }}</p>
               </div>
             }
@@ -219,8 +218,8 @@ import { RouterModule } from '@angular/router';
             @for (stat of teamStats; track stat.label; let i = $index) {
               <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 text-center scroll-fade-in"
                    [style.animation-delay]="i * 100 + 'ms'">
-                <div class="text-5xl font-bold text-muted-gold mb-3">{{ stat.value }}</div>
-                <div class="text-gray-600 font-medium">{{ stat.label }}</div>
+                <div class="text-5xl font-bold text-yellow-500 mb-3">{{ stat.value }}</div>
+                <div class="text-gray-700 font-semibold to-muted-gold ">{{ stat.label }}</div>
               </div>
             }
           </div>
@@ -267,6 +266,10 @@ import { RouterModule } from '@angular/router';
   `
 })
 export class AboutComponent {
+
+  constructor(
+  private sanitizer: DomSanitizer
+) {}
   milestones = [
     { year: '2022', label: 'Founded' },
     { year: '100+', label: 'Projects' },
@@ -275,22 +278,22 @@ export class AboutComponent {
   
   values = [
     {
-      icon: '⭐',
+      icon: 'excellence',
       title: 'Excellence',
       description: 'Maintaining the highest quality standards in all aspects of our work, from development to cybersecurity'
     },
     {
-      icon: '🤝',
+      icon: 'integrity',
       title: 'Integrity',
       description: 'Operating with complete transparency, honesty, and ethical standards in all our dealings'
     },
     {
-      icon: '💡',
+      icon: 'innovation',
       title: 'Innovation',
       description: 'Continuously adapting our services to meet evolving needs and staying at the forefront of technology'
     },
     {
-      icon: '🎯',
+      icon: 'commitment',
       title: 'Commitment',
       description: 'Unwavering dedication to exceeding client expectations and providing exceptional value and support'
     }
@@ -298,34 +301,48 @@ export class AboutComponent {
   
   leadership = [
     {
-      icon: '👨‍💼',
+      icon: 'userCircle',
       name: 'Dr. Eng. Ehab Salah Hashiem',
       title: 'General Manager & Founder',
       phone: '+971 50 7217976',
       email: 'ehab.hashiem@fetc.ae'
     },
     {
-      icon: '👨‍💻',
+      icon: 'desktop',
       name: 'Eng. Osama Elsedik',
       title: 'Development Manager',
       phone: '+20 1001007011',
       email: 'osam.elsedik@fetc.ae'
     },
     {
-      icon: '🔒',
+      icon: 'shield',
       name: 'Eng. Hana Ehab Hashiem',
       title: 'Security Specialist',
       phone: '+971 50 4181306',
       email: 'info@fetc.ae'
     },
     {
-      icon: '📈',
+      icon: 'chart',
       name: 'Mr. Ahmad Ehab Hashiem',
       title: 'Business Development',
       phone: '+971 50 4027391',
       email: 'info@fetc.ae'
     }
   ];
+  
+getIconSvg(iconName: string): SafeHtml {
+  const icons: Record<string, string> = {
+      excellence: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>',
+      integrity: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>',
+      innovation: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>',
+      commitment: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>',
+      userCircle: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      desktop: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
+      shield: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>',
+      chart: '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>'
+    };
+     return this.sanitizer.bypassSecurityTrustHtml(icons[iconName] || '');
+  }
   
   teamStats = [
     { value: '25+', label: 'Years Experience' },

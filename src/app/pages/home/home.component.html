@@ -1,5 +1,3 @@
-<!-- src/app/pages/home/home.component.html -->
-
 <!-- Hero Slider Section -->
 <section class="relative h-screen overflow-hidden bg-[#0a0f1f]">
   <ng-container *ngFor="let slide of heroSlides; let i = index">
@@ -76,7 +74,6 @@
       </svg>
     </button>
   </div>
-
 </section>
 
 <!-- Trust Indicators -->
@@ -95,7 +92,7 @@
   </div>
 </section>
 
-<!-- Services Overview with Cards -->
+<!-- Services Overview -->
 <section class="py-24 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
   <div class="absolute inset-0 opacity-5">
     <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, #191970 1px, transparent 0); background-size: 40px 40px;"></div>
@@ -123,7 +120,6 @@
                  class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
             <div class="absolute inset-0 bg-gradient-to-t from-midnight-blue/90 via-midnight-blue/50 to-transparent"></div>
             <div class="absolute bottom-6 left-6 right-6">
-              <div class="text-5xl mb-3">{{ service.icon }}</div>
               <h3 class="text-2xl font-bold text-white">{{ service.title }}</h3>
             </div>
           </div>
@@ -146,7 +142,7 @@
   </div>
 </section>
 
-<!-- Why Choose FETC Section -->
+<!-- Why Choose FETC -->
 <section class="py-24 bg-white relative overflow-hidden">
   <div class="container mx-auto px-4">
     <div class="grid lg:grid-cols-2 gap-16 items-center">
@@ -196,8 +192,7 @@
           <ng-container *ngFor="let feature of features; let i = index">
             <div class="group flex gap-6 p-6 bg-gray-50 rounded-xl hover:bg-white hover:shadow-lg transition-all duration-500 scroll-fade-in"
                  [style.animation-delay]="i * 100 + 'ms'">
-              <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-midnight-blue to-blue-900 rounded-xl flex items-center justify-center text-3xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 text-white">
-                {{ feature.icon }}
+              <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-midnight-blue to-blue-900 rounded-xl flex items-center justify-center text-3xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 text-white"   [innerHTML]="getIconSvg(feature.icon)">
               </div>
               <div class="space-y-2">
                 <h3 class="text-xl font-bold text-midnight-blue">{{ feature.title }}</h3>
@@ -206,6 +201,148 @@
             </div>
           </ng-container>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-24 relative overflow-hidden">
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+       style="background-image: url('https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1920&q=80');">
+  </div>
+  <div class="absolute inset-0 bg-gradient-to-r from-midnight-blue/95 to-blue-900/95"></div>
+
+  <div class="container mx-auto px-4 relative z-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <ng-container *ngFor="let stat of [
+        {value: '2022', label: 'Established', icon: '🚀'},
+        {value: '100+', label: 'Projects Delivered', icon: '💼'},
+        {value: '25+', label: 'Years Experience', icon: '⭐'},
+        {value: '3+', label: 'Countries Served', icon: '🌍'}
+      ]; let i = index">
+        <div class="text-center space-y-4 scroll-fade-in" [style.animation-delay]="i * 100 + 'ms'">
+          <div class="text-5xl md:text-6xl font-bold text-blue-400 counter-animation">{{ stat.value }}</div>
+          <div class="text-lg text-gray-300 font-medium">{{ stat.label }}</div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</section>
+
+<!-- Blog Section -->
+<section class="py-24 bg-gradient-to-b from-gray-50 to-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16 space-y-4 scroll-fade-in">
+      <div class="inline-block px-6 py-2 bg-midnight-blue/5 border border-midnight-blue/10 rounded-full text-midnight-blue font-semibold text-sm tracking-wide">
+        INSIGHTS & UPDATES
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold text-midnight-blue">Latest from Our Blog</h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        Stay informed with the latest trends, insights, and innovations in IT and cybersecurity
+      </p>
+    </div>
+
+    <ng-container *ngIf="latestBlogs().length > 0; else noBlogs">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <ng-container *ngFor="let blog of latestBlogs(); let i = index">
+          <article class="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 scroll-fade-in"
+                   [style.animation-delay]="i * 150 + 'ms'">
+            <div class="relative h-64 overflow-hidden">
+              <ng-container *ngIf="blog.imageUrl; else placeholderImage">
+                <img [src]="blog.imageUrl" [alt]="blog.title" 
+                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+              </ng-container>
+              <ng-template #placeholderImage>
+                <div class="w-full h-full bg-gradient-to-br from-midnight-blue to-blue-900 flex items-center justify-center">
+                  <span class="text-white text-7xl">📝</span>
+                </div>
+              </ng-template>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            </div>
+            <div class="p-8 space-y-4">
+              <div class="flex items-center gap-4 text-sm text-gray-500">
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  {{ formatDate(blog.createdAt) }}
+                </span>
+              </div>
+              <h3 class="text-2xl font-bold text-midnight-blue group-hover:text-blue-400 transition-colors duration-300 line-clamp-2">
+                {{ blog.title }}
+              </h3>
+              <p class="text-gray-600 line-clamp-3 leading-relaxed">{{ blog.content }}</p>
+              <a [routerLink]="['/blog', blog.id]" 
+                 class="inline-flex items-center gap-2 text-blue-400 font-semibold group-hover:gap-4 transition-all duration-300">
+                Read Article
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <ng-template #noBlogs>
+      <div class="text-center py-20 bg-white rounded-2xl shadow-lg">
+        <div class="text-7xl mb-6 animate-bounce">📝</div>
+        <h3 class="text-2xl font-semibold text-gray-700 mb-2">Coming Soon</h3>
+        <p class="text-gray-500">Exciting content is on its way. Stay tuned!</p>
+      </div>
+    </ng-template>
+
+    <div class="text-center mt-12">
+      <a routerLink="/blog" 
+         class="group inline-flex items-center gap-3 px-10 py-4 bg-midnight-blue text-white rounded-full font-semibold hover:bg-blue-900 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+        View All Articles
+        <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-24 relative overflow-hidden">
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+       style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80');">
+  </div>
+  <div class="absolute inset-0 bg-gradient-to-r from-midnight-blue via-midnight-blue/95 to-blue-900/95"></div>
+
+  <div class="container mx-auto px-4 relative z-10">
+    <div class="max-w-4xl mx-auto text-center space-y-8 scroll-fade-in">
+      <h2 class="text-4xl md:text-6xl font-bold text-white leading-tight">
+        Ready to Transform Your
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 animate-gradient">
+          Technology Infrastructure?
+        </span>
+      </h2>
+      <p class="text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto">
+        Partner with FETC for innovative IT solutions that secure your business and drive digital transformation
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center gap-6 pt-6">
+        <a routerLink="/contact" 
+           class="group relative px-12 py-5 bg-blue-400 text-midnight-blue rounded-full text-lg font-bold overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-400/50">
+          <span class="relative z-10 flex items-center justify-center gap-3">
+            Start Your Project
+            <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </span>
+        </a>
+        <a href="tel:+971507217976" 
+           class="group px-12 py-5 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white rounded-full text-lg font-bold hover:bg-white/20 transition-all duration-300 hover:scale-105">
+          <span class="flex items-center justify-center gap-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+            </svg>
+            +971 50 7217976
+          </span>
+        </a>
       </div>
     </div>
   </div>

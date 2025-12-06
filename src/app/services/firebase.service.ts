@@ -150,42 +150,79 @@ export class FirebaseService {
   
   // Blog management methods
   async uploadBlogImage(file: File): Promise<string> {
-    const timestamp = Date.now();
-    const fileName = `blog-images/${timestamp}_${file.name}`;
-    const storageRef = ref(this.storage, fileName);
-    
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
+    try {
+      console.log('Starting image upload:', file.name, 'Size:', file.size, 'Type:', file.type);
+      
+      const timestamp = Date.now();
+      const fileName = `blog-images/${timestamp}_${file.name}`;
+      const storageRef = ref(this.storage, fileName);
+      
+      console.log('Uploading to path:', fileName);
+      const uploadResult = await uploadBytes(storageRef, file);
+      console.log('Upload successful, getting download URL...');
+      
+      const downloadURL = await getDownloadURL(uploadResult.ref);
+      console.log('Download URL obtained:', downloadURL);
+      
+      return downloadURL;
+    } catch (error) {
+      console.error('Image upload error:', error);
+      throw new Error('Failed to upload image. Please check Firebase Storage configuration.');
+    }
   }
   
   async addBlog(blogData: Omit<Blog, 'id'>, imageFile?: File): Promise<void> {
-    const blogsPath = `artifacts/${environment.appId}/public/data/blogs`;
-    const blogsRef = collection(this.db, blogsPath);
-    
-    let imageUrl = blogData.imageUrl;
-    if (imageFile) {
-      imageUrl = await this.uploadBlogImage(imageFile);
+    try {
+      const blogsPath = `artifacts/${environment.appId}/public/data/blogs`;
+      const blogsRef = collection(this.db, blogsPath);
+      
+      let imageUrl = blogData.imageUrl;
+      
+      if (imageFile) {
+        console.log('Image file provided, uploading...');
+        imageUrl = await this.uploadBlogImage(imageFile);
+        console.log('Image uploaded, URL:', imageUrl);
+      } else if (imageUrl) {
+        console.log('Using provided image URL:', imageUrl);
+      }
+      
+      const blogToSave = {
+        title: blogData.title,
+        content: blogData.content,
+        imageUrl: imageUrl || '',
+        createdAt: Timestamp.now()
+      };
+      
+      console.log('Saving blog to Firestore:', blogToSave);
+      await addDoc(blogsRef, blogToSave);
+      console.log('Blog saved successfully');
+    } catch (error) {
+      console.error('Error adding blog:', error);
+      throw error;
     }
-    
-    await addDoc(blogsRef, {
-      ...blogData,
-      imageUrl,
-      createdAt: Timestamp.now()
-    });
   }
   
   async updateBlog(id: string, data: Partial<Blog>, imageFile?: File): Promise<void> {
-    const blogsPath = `artifacts/${environment.appId}/public/data/blogs`;
-    const blogRef = doc(this.db, blogsPath, id);
-    
-    let updateData = { ...data };
-    if (imageFile) {
-      const imageUrl = await this.uploadBlogImage(imageFile);
-      updateData = { ...updateData, imageUrl };
+    try {
+      const blogsPath = `artifacts/${environment.appId}/public/data/blogs`;
+      const blogRef = doc(this.db, blogsPath, id);
+      
+      let updateData = { ...data };
+      
+      if (imageFile) {
+        console.log('Updating with new image file...');
+        const imageUrl = await this.uploadBlogImage(imageFile);
+        updateData = { ...updateData, imageUrl };
+        console.log('New image URL:', imageUrl);
+      }
+      
+      console.log('Updating blog in Firestore:', updateData);
+      await updateDoc(blogRef, updateData);
+      console.log('Blog updated successfully');
+    } catch (error) {
+      console.error('Error updating blog:', error);
+      throw error;
     }
-    
-    await updateDoc(blogRef, updateData);
   }
   
   async deleteBlog(id: string): Promise<void> {

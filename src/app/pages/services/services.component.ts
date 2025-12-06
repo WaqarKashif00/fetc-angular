@@ -50,9 +50,9 @@ import { RouterModule } from '@angular/router';
                   <div class="absolute inset-0 bg-gradient-to-t from-midnight-blue via-midnight-blue/60 to-transparent"></div>
                   
                   <!-- Icon Badge -->
-                  <div class="absolute top-6 right-6 w-16 h-16 bg-muted-gold rounded-2xl flex items-center justify-center text-3xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl">
+                  <!-- <div class="absolute top-6 right-6 w-16 h-16 bg-muted-gold rounded-2xl flex items-center justify-center text-3xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl">
                     {{ service.icon }}
-                  </div>
+                  </div> -->
                   
                   <!-- Title Overlay -->
                   <div class="absolute bottom-6 left-6 right-6">
@@ -162,7 +162,6 @@ import { RouterModule } from '@angular/router';
                   </div>
                   
                   <div class="pt-8 text-center space-y-4">
-                    <div class="text-5xl mb-4 animate-float" [style.animation-delay]="i * 300 + 'ms'">{{ step.icon }}</div>
                     <h4 class="text-xl font-bold text-midnight-blue">{{ step.title }}</h4>
                     <p class="text-gray-600 leading-relaxed">{{ step.description }}</p>
                   </div>
@@ -241,7 +240,6 @@ import { RouterModule } from '@angular/router';
 export class ServicesComponent {
   services = [
     {
-      icon: '🔒',
       title: 'Cybersecurity Services',
       subtitle: 'Comprehensive Security Solutions',
       description: 'Protect your digital assets with penetration testing, vulnerability assessments, and security audits.',
@@ -258,7 +256,6 @@ export class ServicesComponent {
       ]
     },
     {
-      icon: '💻',
       title: 'Application Development',
       subtitle: 'Custom Software Solutions',
       description: 'Custom mobile and web application development tailored to your business needs.',
@@ -275,7 +272,6 @@ export class ServicesComponent {
       ]
     },
     {
-      icon: '☁️',
       title: 'Cloud Services',
       subtitle: 'Cloud Migration & Management',
       description: 'Leverage cloud solutions to reduce costs, increase scalability, and improve efficiency.',
@@ -292,7 +288,6 @@ export class ServicesComponent {
       ]
     },
     {
-      icon: '📋',
       title: 'IT Consulting',
       subtitle: 'Strategic Technology Guidance',
       description: 'Expert guidance on IT strategy, infrastructure planning, and digital transformation.',
@@ -309,7 +304,6 @@ export class ServicesComponent {
       ]
     },
     {
-      icon: '🌐',
       title: 'Website Development',
       subtitle: 'Professional Web Solutions',
       description: 'Design and build responsive, user-friendly websites that drive business growth.',
@@ -326,7 +320,6 @@ export class ServicesComponent {
       ]
     },
     {
-      icon: '🛡️',
       title: 'Digital Marketing',
       subtitle: 'Online Presence & Growth',
       description: 'Comprehensive digital marketing services to enhance your online presence.',
@@ -356,25 +349,21 @@ export class ServicesComponent {
   process = [
     {
       number: 1,
-      icon: '💬',
       title: 'Consultation',
       description: 'Understanding your requirements, challenges, and business objectives'
     },
     {
       number: 2,
-      icon: '📐',
       title: 'Planning',
       description: 'Developing comprehensive strategy and technical specifications'
     },
     {
       number: 3,
-      icon: '🔨',
       title: 'Implementation',
       description: 'Professional execution with quality control and best practices'
     },
     {
       number: 4,
-      icon: '✅',
       title: 'Support',
       description: 'Ongoing maintenance, training, and technical support'
     }
