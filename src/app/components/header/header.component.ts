@@ -44,7 +44,6 @@ export class HeaderComponent {
         { label: 'About Us', path: '/about', icon: '🏢' },
         { label: 'Our Team', path: '/about', icon: '👥' },
         { label: 'Testimonials', path: '/testimonials', icon: '⭐' },
-        { label: 'Career', path: '/contact', icon: '💼' }
       ]
     },
     {
@@ -54,7 +53,6 @@ export class HeaderComponent {
         { label: 'Blog', path: '/blog', icon: '📝' },
         { label: 'Projects', path: '/projects', icon: '🎯' },
         { label: 'FAQ', path: '/faq', icon: '❓' },
-        { label: 'Contact', path: '/contact', icon: '📞' }
       ]
     }
   ];
